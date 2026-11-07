@@ -1,0 +1,10 @@
+CHALLENGE SPRINT 01 - ENGMAN COPILOT (FIAP x MOTIVA)
+Grupo: DETECTA - Turma 1CCPA
+Recorte escolhido: A - Diagnostico e Confiabilidade
+ 
+Integrantes:
+Maria Eduarda Laines Braga - RM 576030 - 1CCPA
+Hellen Fabia Assis dos Santos - RM 575236 - 1CCPA
+Valeria Conceicao dos Santos - RM 574489 - 1CCPA
+ 
+Repositorio: https://github.com/valor-null/engman-copilot.git
