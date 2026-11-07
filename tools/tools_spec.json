@@ -1,0 +1,193 @@
+{
+  "projeto": "EngMan Copilot (DETECTA)",
+  "versao": "sprint1",
+  "observacao": "Todas as tools devolvem dados simulados nesta fase.",
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "consultar_ativo",
+        "description": "Retorna a ficha de uma câmera CFTV PTZ a partir do TAG: fabricante, modelo, km, praça ou pórtico, data de instalação, vida útil, criticidade, limite de temperatura e potência nominal. Use sempre que precisar de dados cadastrais ou da criticidade de uma câmera antes de diagnosticar ou priorizar.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "tag": {
+              "type": "string",
+              "description": "TAG da câmera no formato do catálogo, por exemplo CAM-001."
+            }
+          },
+          "required": ["tag"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "consultar_historico_falhas",
+        "description": "Retorna as falhas registradas no FSM para uma câmera dentro de uma janela de tempo: data, sintoma, causa identificada, tipo de intervenção, tempo de reparo, peça trocada e reincidência. Use sempre que o usuário perguntar sobre reincidência, causa provável ou comportamento histórico de uma câmera.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "tag": {
+              "type": "string",
+              "description": "TAG da câmera, por exemplo CAM-001."
+            },
+            "janela_meses": {
+              "type": "integer",
+              "description": "Quantos meses para trás consultar. Padrão: 12.",
+              "default": 12,
+              "minimum": 1,
+              "maximum": 60
+            },
+            "tipo_falha": {
+              "type": "string",
+              "description": "Filtro opcional pela natureza da falha.",
+              "enum": ["superaquecimento", "consumo_anormal", "fonte", "comunicacao", "outro"]
+            }
+          },
+          "required": ["tag"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "abrir_ordem_servico",
+        "description": "Registra uma ordem de serviço simulada para uma câmera e retorna o número da OS. Use somente depois que o engenheiro confirmar o tipo de intervenção, a prioridade e a descrição.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "tag": {
+              "type": "string",
+              "description": "TAG da câmera, por exemplo CAM-001."
+            },
+            "tipo_intervencao": {
+              "type": "string",
+              "description": "Tipo de intervenção a executar.",
+              "enum": ["corretiva", "preventiva", "inspecao", "cbm"]
+            },
+            "prioridade": {
+              "type": "string",
+              "description": "Prioridade definida segundo a matriz de criticidade.",
+              "enum": ["alta", "media", "baixa"]
+            },
+            "descricao": {
+              "type": "string",
+              "description": "Descrição do problema e do serviço, separando fato de hipótese."
+            },
+            "janela_inicio": {
+              "type": "string",
+              "format": "date",
+              "description": "Data inicial para execução, no formato AAAA-MM-DD."
+            },
+            "janela_fim": {
+              "type": "string",
+              "format": "date",
+              "description": "Data limite para execução, no formato AAAA-MM-DD."
+            }
+          },
+          "required": ["tag", "tipo_intervencao", "prioridade", "descricao", "janela_inicio", "janela_fim"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "consultar_procedimento",
+        "description": "Retorna o passo a passo do POP aplicável a um tipo de intervenção, com os pré-requisitos de segurança (EPI, desligamento, NR-10 e NR-35). Use sempre que o usuário pedir um procedimento ou antes de recomendar uma intervenção em campo.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "tipo_ativo": {
+              "type": "string",
+              "description": "Tipo de equipamento. Nesta versão, apenas câmeras CFTV PTZ.",
+              "enum": ["cftv_ptz"]
+            },
+            "tipo_intervencao": {
+              "type": "string",
+              "description": "Tipo de intervenção do procedimento desejado.",
+              "enum": ["corretiva", "preventiva", "inspecao", "cbm"]
+            }
+          },
+          "required": ["tipo_ativo", "tipo_intervencao"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "calcular_metricas_confiabilidade",
+        "description": "Calcula as métricas de confiabilidade de uma câmera a partir do histórico de falhas: taxa de falha (λ), MTBF, MTTR, confiabilidade R(t) = e^(-λt) e a classificação (Excelente, Boa, Atenção ou Crítica). Use quando o usuário perguntar sobre confiabilidade, risco de falha ou quando a manutenção preventiva deve acontecer.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "tag": {
+              "type": "string",
+              "description": "TAG da câmera, por exemplo CAM-001."
+            },
+            "periodo_meses": {
+              "type": "integer",
+              "description": "Período do histórico usado no cálculo da taxa de falha. Padrão: 12.",
+              "default": 12,
+              "minimum": 1,
+              "maximum": 60
+            },
+            "tempo_operacao_horas": {
+              "type": "number",
+              "description": "Tempo t, em horas, para calcular R(t). Exemplo: 720 para 30 dias.",
+              "minimum": 0
+            }
+          },
+          "required": ["tag", "tempo_operacao_horas"]
+        }
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "listar_ativos_por_criticidade",
+        "description": "Retorna o ranking das câmeras por criticidade, confiabilidade R(t) e alertas pendentes da DETECTA. Use quando o engenheiro quiser saber quais câmeras atender primeiro.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "tipo_ativo": {
+              "type": "string",
+              "description": "Tipo de equipamento. Nesta versão, apenas câmeras CFTV PTZ.",
+              "enum": ["cftv_ptz"]
+            },
+            "limite": {
+              "type": "integer",
+              "description": "Quantidade máxima de câmeras no ranking. Padrão: 10.",
+              "default": 10,
+              "minimum": 1,
+              "maximum": 50
+            }
+          },
+          "required": []
+        }
+      }
+    }
+  ],
+  "tratamento_de_erros": [
+    {
+      "erro": "ativo_nao_encontrado",
+      "quando": "O TAG não existe no catálogo.",
+      "comportamento": "O assistente informa que o TAG não foi encontrado, pede para conferir e não inventa dados."
+    },
+    {
+      "erro": "sem_registros",
+      "quando": "A câmera existe, mas não há falhas ou dados suficientes no período.",
+      "comportamento": "O assistente informa que não há registros no período e não calcula métricas sem base."
+    },
+    {
+      "erro": "parametro_invalido",
+      "quando": "Falta um campo obrigatório ou um valor está fora do enum.",
+      "comportamento": "O assistente pergunta ao usuário o dado que falta antes de chamar a tool de novo."
+    },
+    {
+      "erro": "timeout",
+      "quando": "A tool não responde a tempo.",
+      "comportamento": "O assistente avisa que não conseguiu consultar o sistema, não usa valores supostos e sugere tentar novamente."
+    }
+  ]
+}
